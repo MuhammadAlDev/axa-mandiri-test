@@ -1,24 +1,31 @@
 # Axa Mandiri Test
 
-Playwright browser tests written in Python and run with pytest.
+Playwright UI tests written in Python and run with pytest against the OrangeHRM
+demo site.
 
 ## Project structure
 
 ```text
+config.py
 pages/
-  base_page.py       # Shared browser/page operations
-  example_page.py   # Locators and actions for an example page
+  add_employee_page.py
+  base_page.py
+  dashboard_page.py
+  login_page.py
+  pim_page.py
 tests/
-  test_example.py   # Test scenarios and assertions
+  conftest.py
+  ui/
+    test_orangehrm.py
+.env                  # Local credentials; ignored by Git
+.env.example          # Credential template
 pytest.ini
 requirements.txt
 ```
 
-Put **test cases and assertions** in `tests/`. Put each screen's **locators
-and user actions** in a page object under `pages/`. Tests should use page
-objects instead of defining selectors directly. The example uses in-memory
-HTML, so it can run without a target website; replace it with page objects
-for the actual application when its URL and selectors are known.
+Test scenarios and assertions belong in `tests/`; page locators and user
+actions belong in `pages/`. The employee search and deletion tests create
+unique employee records and remove them afterward.
 
 ## Setup
 
@@ -31,21 +38,31 @@ python -m pip install -r requirements.txt
 python -m playwright install
 ```
 
+The local `.env` file contains the demo login credentials and is excluded from
+Git. Update it if the demo credentials change. The required variables are:
+
+```env
+ORANGEHRM_BASE_URL=https://opensource-demo.orangehrmlive.com/web/index.php/auth/login
+ORANGEHRM_USERNAME=your_username
+ORANGEHRM_PASSWORD=your_password
+```
+
 On Windows, activate the environment with `.venv\Scripts\activate`.
 
 ## Run tests
 
 ```bash
-pytest
+pytest tests/ui
 ```
 
 Playwright runs browsers headlessly by default. To see the browser while testing:
 
 ```bash
-pytest --headed
+pytest tests/ui --headed
 ```
 
-Add test modules under `tests/` using the `test_*.py` naming convention. The
-`page` fixture is provided by `pytest-playwright`. Create additional page
-objects under `pages/` and pass the fixture to them, for example
-`LoginPage(page)`.
+To run one scenario, specify its test name:
+
+```bash
+pytest tests/ui/test_orangehrm.py::test_login_with_valid_credentials_opens_dashboard
+```
